@@ -30,6 +30,8 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  hostedSessions GameSession[] @relation("HostSessions")
+  players  Player[]
 
   @@map("users")
 }
@@ -76,4 +78,39 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model GameSession {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  hostId    String
+  host      User      @relation("HostSessions", fields: [hostId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  players   Player[]
+  games     Game[]
+}
+
+model Player {
+  id        String       @id @default(cuid())
+  name      String
+  score     Int          @default(0)
+  userId    String?
+  sessionId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session  GameSession @relation(fields: [sessionId], references: [id])
+}
+
+model Game {
+  id        String       @id @default(cuid())
+  state     String
+  sessionId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session GameSession @relation(fields: [sessionId], references: [id])
 }

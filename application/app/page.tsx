@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Spotlight } from "@/components/ui/spotlight-new";
 import { ModernFooter } from "@/components/modern-footer";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -58,17 +59,20 @@ export default function Home() {
               Nous vous proposons une gamme variée de jeux multijoueurs et solo, accessibles directement depuis votre navigateur et jouable depuis votre téléphone.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                variant="default" 
-                size="lg" 
-                className="px-8 bg-gradient-to-r from-[#F18585] to-[#F49C9C] hover:from-[#F49C9C] hover:to-[#F6AEAE] text-white font-semibold shadow-lg hover:shadow-[#F18585]/25 transition-all duration-300"
-              >
-                Voir le catalogue
-              </Button>
+              <Link href="/games">
+                <Button 
+                  variant="default" 
+                  size="lg" 
+                  className="px-8 bg-gradient-to-r from-[#F18585] to-[#F49C9C] hover:from-[#F49C9C] hover:to-[#F6AEAE] text-white font-semibold shadow-lg hover:shadow-[#F18585]/25 transition-all duration-300"
+                >
+                  Voir le catalogue
+                </Button>
+              </Link>
               <LiquidButton 
+                href="/sessions/join"
                 variant="glass" 
                 size="lg" 
-                className="rounded-full px-8 gap-2 bg-gradient-to-r from-[#C174F2]/20 to-[#D5A8F2]/20 border border-[#CB90F1]/30 text-[#EED5FB] hover:bg-gradient-to-r hover:from-[#CB90F1]/30 hover:to-[#E4BEF8]/30 transition-all duration-300"
+                className="rounded-full px-8 gap-2 bg-gradient-to-r from-[#C174F2]/20 to-[#D5A8F2]/20 border border-[#CB90F1]/30 text-[#EED5FB] hover:bg-gradient-to-r hover:from-[#CB90F1]/30 hover:to-[#E4BEF8]/30 transition-all duration-300 overflow-hidden"
               >
                 Commencer à jouer
                 <ArrowRight className="size-4" />

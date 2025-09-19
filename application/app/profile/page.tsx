@@ -24,13 +24,6 @@ export default function Profile() {
     email: ''
   });
 
-  const [filters, setFilters] = useState<FilterState>({
-    sector: 'all',
-    maturity: 'all',
-    address: 'all',
-    search: ''
-  });
-
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth');
