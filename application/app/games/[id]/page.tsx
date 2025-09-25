@@ -10,6 +10,7 @@ export default function GamePage() {
   const gameId = params.id;
   const [game, setGame] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchGame = async () => {
@@ -46,7 +47,7 @@ export default function GamePage() {
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#F18585] to-[#F49C9C] bg-clip-text text-transparent">
           Jeu : {game.id}
         </h1>
-        <p className="mb-4">État : <strong>{game.state}</strong></p>
+        <p className="text-2xl mb-2">État : <strong>{game.state}</strong></p>
 
         {/* Liste des joueurs */}
         <div className="mb-6">
@@ -58,7 +59,7 @@ export default function GamePage() {
               ))}
             </ul>
           ) : (
-            <p>Aucun joueur pour cette session</p>
+            <p>Aucun joueur disponible</p>
           )}
         </div>
 
@@ -68,6 +69,19 @@ export default function GamePage() {
           className="h-96 w-full bg-black/30 border border-[#F49C9C]/20 rounded-lg flex items-center justify-center text-[#F49C9C]"
         >
           Unity WebGL sera ici
+        </div>
+        {/* Bouton démarrer le jeu */}
+        <div className="text-center">
+        <button
+          onClick={() => {
+            // Ici, tu peux ajouter la logique pour démarrer le jeu (callback, API, etc.)
+            const unityDiv = document.getElementById("unity-container");
+            if (unityDiv) unityDiv.scrollIntoView({ behavior: "smooth" });
+          }}
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-[#C174F2] to-[#F18585] rounded-lg shadow-md font-semibold text-white hover:from-[#F18585] hover:to-[#C174F2] transition-all"
+        >
+          Démarrer le jeu
+        </button>
         </div>
       </div>
     </div>
