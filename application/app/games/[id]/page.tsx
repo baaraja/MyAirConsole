@@ -36,7 +36,7 @@ export default function GamePage() {
         {/* Retour accueil */}
         <div className="mb-4">
           <Link
-            href="/"
+            href="/sessions/join"
             className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#5a189a]/30 hover:to-[#7b2cbf]/30 border border-[#9d4edd]/30 rounded-lg transition-all duration-300"
           >
             ←

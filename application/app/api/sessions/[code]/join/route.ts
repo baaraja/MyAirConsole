@@ -6,9 +6,8 @@ import { auth } from "@/lib/auth";
 export async function POST(req: NextRequest, { params }: { params: { code: string } }) {
     try {
         const session = await auth();
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: "Non connecté" }, { status: 401 });
-        }
+        const isUser = session?.user ? true : false;
+        const generatedName = `Player${Math.floor(Math.random() * 1000)}`;
         const gameSession = await prisma.gameSession.findUnique({
             where: { code: params.code.toUpperCase() },
         });
@@ -17,8 +16,8 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
         }
         const player = await prisma.player.create({
             data: {
-                name: session.user.name ?? "Invité",
-                userId: session.user.id,
+                name: isUser ? session?.user?.name || generatedName : generatedName,
+                userId: isUser ? session?.user?.id : null,
                 sessionId: gameSession.id,
             },
         });

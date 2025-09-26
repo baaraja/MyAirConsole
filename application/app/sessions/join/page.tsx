@@ -18,9 +18,12 @@ export default function SessionPage() {
   // Vérifier s'il y a déjà une session active au chargement
   useEffect(() => {
     // Vérification à chaque affichage : si l'utilisateur n'est pas membre, supprimer la session
-    if (currentSession && userSession?.user?.id) {
-      const isHost = userSession.user.id === currentSession.hostId;
-      const isPlayer = currentSession.players && currentSession.players.some((p: any) => p.userId === userSession.user.id);
+    if (currentSession) {
+      const storedPlayerId = sessionStorage.getItem('playerId');
+      const isHost = userSession?.user?.id === currentSession.hostId;
+      const isPlayer = currentSession.players && currentSession.players.some((p: any) =>
+        p.userId === userSession?.user?.id || (storedPlayerId && p.id === storedPlayerId)
+      );
       if (!isHost && !isPlayer) {
         sessionStorage.removeItem('activeGameSession');
         setCurrentSession(null);
@@ -86,12 +89,14 @@ export default function SessionPage() {
         }
       }
 
-      // Stocker la session dans sessionStorage
+      // Stocker la session et l'id du joueur dans sessionStorage
       sessionStorage.setItem('activeGameSession', JSON.stringify(data));
+      if (data.player?.id) {
+        sessionStorage.setItem('playerId', data.player.id);
+      }
       setSession(data);
       setCurrentSession(data);
       
-      router.push(`/games/${data.id}`);
     } catch (err) {
       setError("Erreur serveur");
       console.error(err);
@@ -102,24 +107,12 @@ export default function SessionPage() {
 
   const handleLeaveSession = async () => {
     if (!currentSession) return;
-    
-    setLoading(true);
+      setLoading(true);
     try {
-      // Supprimer la session de la base de données
-      const res = await fetch(`/api/sessions/${currentSession.code}`, { 
-        method: "DELETE" 
-      });
-      
-      if (res.ok) {
-        // Supprimer du storage local et mettre à jour l'état
-        sessionStorage.removeItem('activeGameSession');
-        setCurrentSession(null);
-        setSession(null);
-        setError(""); 
-      } else {
-        const errorData = await res.json();
-        setError(errorData.error || "Erreur lors de la suppression");
-      }
+      sessionStorage.removeItem('activeGameSession');
+      setCurrentSession(null);
+      setSession(null);
+      setError(""); 
     } catch (err) {
       setError("Erreur lors de la suppression de la session");
       console.error(err);
@@ -136,8 +129,7 @@ export default function SessionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
-  <div className="max-w-lg w-full bg-black/70 backdrop-blur-md border border-[#5a189a]/20 rounded-xl p-6 space-y-6 shadow-lg">
-        
+      <div className="max-w-lg w-full bg-black/70 backdrop-blur-md border border-[#5a189a]/20 rounded-xl p-6 space-y-6 shadow-lg">
         {/* Bouton retour accueil */}
         <div className="flex justify-start">
           <Link 
@@ -148,10 +140,18 @@ export default function SessionPage() {
           </Link>
         </div>
 
-        {/* Afficher la session active uniquement pour l'hôte ou les joueurs de la session */}
+        {/* Afficher la session active pour l'hôte ou tout joueur (invité ou connecté) qui vient de rejoindre */}
         {currentSession && (
           (userSession?.user?.id === currentSession.hostId ||
-            (currentSession.players && currentSession.players.some((p: any) => p.userId === userSession?.user?.id)))
+            (currentSession.players && currentSession.players.some((p: any) => {
+              const storedPlayerId = sessionStorage.getItem('playerId');
+              return (
+                p.userId === userSession?.user?.id ||
+                (session?.player?.id && p.id === session.player.id) ||
+                (storedPlayerId && p.id === storedPlayerId)
+              );
+            }))
+          )
         ) && (
           <div className="p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg">
             {/* Numéro de session affiché en haut si session active */}
@@ -188,14 +188,16 @@ export default function SessionPage() {
                     {currentSession.host.name || currentSession.host.email} <span className="text-xs text-[#10002b]">(Hôte)</span>
                   </li>
                 )}
-                {/* Afficher les autres joueurs (hors hôte) */}
-                {currentSession.players && currentSession.players
-                  .filter((player: any) => player.userId !== currentSession.hostId)
-                  .map((player: any) => (
-                    <li key={player.id} className="px-3 py-1 bg-[#7b2cbf]/30 rounded-full text-sm">
-                      {player.name}
+                {/* Tous les joueurs (y compris l'hôte) ont le même style */}
+                {currentSession.players && currentSession.players.map((player: any) => {
+                  const isCurrent = session?.player?.id && player.id === session.player.id;
+                  // Style identique à l'hôte
+                  return (
+                    <li key={player.id} className={`px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50`}>
+                      {player.name} {isCurrent && <span className="text-xs text-[#10002b]">(Vous)</span>}
                     </li>
-                  ))}
+                  );
+                })}
               </ul>
               {(!currentSession.players || currentSession.players.length === 0) && !currentSession.host && (
                 <p className="text-center text-[#e0aaff]/70">Aucun joueur connecté</p>
@@ -216,7 +218,7 @@ export default function SessionPage() {
                     disabled={loading}
                     className="px-4 py-2 bg-gradient-to-r from-red-500/20 to-red-400/20 hover:from-red-500/30 hover:to-red-400/30 border border-red-400/30 text-red-300 rounded-lg transition-all duration-300 text-left backdrop-blur-sm"
                   >
-                    {loading ? "Suppression..." : "Supprimer la session"}
+                    {loading ? "Leaving..." : "Quitter la session"}
                   </button>
                 )}
               </div>
@@ -224,10 +226,10 @@ export default function SessionPage() {
           </div>
         )}
 
-  <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Rejoindre ou créer une session
         </h1>
-  <p className="text-center text-[#e0aaff]/70">
+        <p className="text-center text-[#e0aaff]/70">
           Entrez le code d'une session pour la rejoindre, ou laissez vide pour créer une nouvelle partie
         </p>
 

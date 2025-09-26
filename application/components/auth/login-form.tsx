@@ -79,7 +79,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         if (signInResult?.error) {
           alert("Compte créé avec succès ! Veuillez vous connecter.");
         } else {
-          window.location.href = "/profile";
+          window.location.href = "/";
         }
       } else {
         // Handle signin with credentials
@@ -102,7 +102,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
             window.location.href = redirectTo;
           } else {
             // Normal redirect to profile
-            window.location.href = "/profile";
+            window.location.href = "/";
           }
         }
       }

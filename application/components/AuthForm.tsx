@@ -92,7 +92,7 @@ export default function AuthForm() {
         setFormError(isSignUp ? 'Compte créé, mais connexion impossible. Essayez de vous connecter.' : 'Email ou mot de passe incorrect');
       } else {
         // Rediriger vers le profil pour les nouveaux utilisateurs
-        router.push('/profile');
+        router.push('/');
       }
     } catch {
       setFormError(isSignUp ? "Erreur lors de l'inscription" : 'Erreur lors de la connexion');
