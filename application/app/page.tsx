@@ -16,7 +16,7 @@ export default function Home() {
           beamWidth={8}
           beamHeight={60}
           beamNumber={16}
-          lightColor="#C174F2"
+          lightColor="#10002b"
           speed={1.2}
           noiseIntensity={0.6}
           scale={0.08}
@@ -30,7 +30,7 @@ export default function Home() {
           beamWidth={4}
           beamHeight={80}
           beamNumber={12}
-          lightColor="#F18585"
+          lightColor="#240046"
           speed={0.8}
           noiseIntensity={0.4}
           scale={0.12}
@@ -51,11 +51,11 @@ export default function Home() {
           <div className="relative z-20 text-center max-w-4xl">
             <h1 className="text-4xl md:text-6xl font-bold mb-5 text-white drop-shadow-2xl">
               Bienvenue sur notre
-              <span className="block bg-gradient-to-r from-[#F18585] via-[#F49C9C] to-[#C174F2] bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-[#5a189a] via-[#7b2cbf] to-[#3c096c] bg-clip-text text-transparent">
                 Console en ligne
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-[#F8CACF] mb-7 max-w-2xl mx-auto drop-shadow-[0_0_18px_rgba(241,133,133,0.35)]">
+            <p className="text-lg md:text-xl text-[#e4c1f9] mb-7 max-w-2xl mx-auto drop-shadow-[0_0_18px_rgba(224,161,249,0.35)]">
               Nous vous proposons une gamme variée de jeux multijoueurs et solo, accessibles directement depuis votre navigateur et jouable depuis votre téléphone.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -63,7 +63,7 @@ export default function Home() {
                 <Button 
                   variant="default" 
                   size="lg" 
-                  className="px-8 bg-gradient-to-r from-[#F18585] to-[#F49C9C] hover:from-[#F49C9C] hover:to-[#F6AEAE] text-white font-semibold shadow-lg hover:shadow-[#F18585]/25 transition-all duration-300"
+                  className="px-8 bg-gradient-to-r from-[#10002b] to-[#240046] hover:from-[#240046] hover:to-[#3c096c] text-white font-semibold shadow-lg hover:shadow-[#10002b]/25 transition-all duration-300"
                 >
                   Voir le catalogue
                 </Button>
@@ -72,7 +72,7 @@ export default function Home() {
                 href="/sessions/join"
                 variant="glass" 
                 size="lg" 
-                className="rounded-full px-8 gap-2 bg-gradient-to-r from-[#C174F2]/20 to-[#D5A8F2]/20 border border-[#CB90F1]/30 text-[#EED5FB] hover:bg-gradient-to-r hover:from-[#CB90F1]/30 hover:to-[#E4BEF8]/30 transition-all duration-300 overflow-hidden"
+                className="rounded-full px-8 gap-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 text-[#e0aaff] hover:bg-gradient-to-r hover:from-[#9d4edd]/30 hover:to-[#c77dff]/30 transition-all duration-300 overflow-hidden"
               >
                 Commencer à jouer
                 <ArrowRight className="size-4" />

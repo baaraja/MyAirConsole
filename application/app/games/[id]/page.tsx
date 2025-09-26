@@ -32,19 +32,19 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white p-8">
-      <div className="max-w-4xl mx-auto bg-black/50 rounded-xl p-6 shadow-lg backdrop-blur-md border border-[#F49C9C]/20">
+  <div className="max-w-4xl mx-auto bg-black/50 rounded-xl p-6 shadow-lg backdrop-blur-md border border-[#240046]/20">
         {/* Retour accueil */}
         <div className="mb-4">
           <Link
             href="/"
-            className="px-4 py-2 bg-gradient-to-r from-[#C174F2]/20 to-[#F18585]/20 hover:from-[#C174F2]/30 hover:to-[#F18585]/30 border border-[#CB90F1]/30 rounded-lg transition-all duration-300"
+            className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#5a189a]/30 hover:to-[#7b2cbf]/30 border border-[#9d4edd]/30 rounded-lg transition-all duration-300"
           >
             ←
           </Link>
         </div>
 
         {/* Info jeu */}
-        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#F18585] to-[#F49C9C] bg-clip-text text-transparent">
+  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Jeu : {game.id}
         </h1>
         <p className="text-2xl mb-2">État : <strong>{game.state}</strong></p>
@@ -66,7 +66,7 @@ export default function GamePage() {
         {/* Placeholder Unity WebGL */}
         <div
           id="unity-container"
-          className="h-96 w-full bg-black/30 border border-[#F49C9C]/20 rounded-lg flex items-center justify-center text-[#F49C9C]"
+          className="h-96 w-full bg-black/30 border border-[#240046]/20 rounded-lg flex items-center justify-center text-[#240046]"
         >
           Unity WebGL sera ici
         </div>
@@ -78,7 +78,7 @@ export default function GamePage() {
             const unityDiv = document.getElementById("unity-container");
             if (unityDiv) unityDiv.scrollIntoView({ behavior: "smooth" });
           }}
-          className="mt-4 px-4 py-2 bg-gradient-to-r from-[#C174F2] to-[#F18585] rounded-lg shadow-md font-semibold text-white hover:from-[#F18585] hover:to-[#C174F2] transition-all"
+          className="mt-4 px-4 py-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] rounded-lg shadow-md font-semibold text-white hover:from-[#7b2cbf] hover:to-[#5a189a] transition-all"
         >
           Démarrer le jeu
         </button>

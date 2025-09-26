@@ -17,9 +17,9 @@ import {
 export default function LandingNavbar() {
   const navItems = [
     { name: 'Accueil', link: '/' },
-    { name: 'Projets', link: '#projects' },
-    { name: 'Événements', link: '/event' },
-    { name: 'Actualités', link: '/news' },
+    { name: 'Games', link: '#projects' },
+    { name: 'Room', link: '/news' },
+    { name: 'Événements', link: '/events' },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

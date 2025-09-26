@@ -54,8 +54,8 @@ export function ModernFooter() {
             <div className="space-y-3">
               {[
                 { label: "Accueil", href: "#home" },
-                { label: "Nos projets", href: "#projects" },
-                { label: "Actualités", href: "#news" },
+                { label: "Games", href: "#projects" },
+                { label: "Room", href: "#news" },
                 { label: "Événements", href: "#events" },
                 { label: "À propos", href: "#about" },
                 { label: "Contact", href: "#contact" }
@@ -78,12 +78,12 @@ export function ModernFooter() {
             <h4 className="text-white font-semibold mb-6">Services</h4>
             <div className="space-y-3">
               {[
-                { label: "Incubation", href: "#incubation" },
-                { label: "Accélération", href: "#acceleration" },
-                { label: "Mentorat", href: "#mentoring" },
-                { label: "Financement", href: "#funding" },
+                { label: "Connexion", href: "#incubation" },
+                { label: "API", href: "#acceleration" },
+                { label: "Doc", href: "#mentoring" },
+                { label: "Contribute", href: "#funding" },
                 { label: "Networking", href: "#networking" },
-                { label: "Formation", href: "#training" }
+                { label: "Training", href: "#training" }
               ].map((service) => (
                 <a
                   key={service.label}

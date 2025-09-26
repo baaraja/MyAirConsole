@@ -40,8 +40,8 @@ export default function Profile() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F18585] mx-auto"></div>
-          <p className="text-[#F8CACF]">Chargement du profil...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#10002b] mx-auto"></div>
+          <p className="text-[#e4c1f9]">Chargement du profil...</p>
         </div>
       </div>
     );
@@ -94,14 +94,14 @@ export default function Profile() {
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-4xl">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 bg-gradient-to-br from-black/80 via-[#C174F2]/5 to-[#F18585]/5 rounded-xl p-4 sm:p-6 backdrop-blur-md border border-[#F49C9C]/20 gap-4">
+  <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 bg-gradient-to-br from-black/80 via-[#5a189a]/5 to-[#10002b]/5 rounded-xl p-4 sm:p-6 backdrop-blur-md border border-[#240046]/20 gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#F18585] to-[#C174F2] rounded-xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#10002b] to-[#5a189a] rounded-xl flex items-center justify-center">
               <User size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#F18585] to-[#F49C9C] bg-clip-text text-transparent mb-2">Mon Profil</h1>
-              <p className="text-[#F8CACF]">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent mb-2">Mon Profil</h1>
+              <p className="text-[#e4c1f9]">
                 Gérez vos informations personnelles
               </p>
             </div>
@@ -109,14 +109,14 @@ export default function Profile() {
           <div className="flex items-center gap-4">
             <Link 
               href="/"
-              className="px-4 py-2 bg-gradient-to-r from-[#C174F2]/20 to-[#F18585]/20 hover:from-[#C174F2]/30 hover:to-[#F18585]/30 border border-[#CB90F1]/30 rounded-lg transition-all duration-300 backdrop-blur-sm flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#5a189a]/30 hover:to-[#7b2cbf]/30 border border-[#9d4edd]/30 rounded-lg transition-all duration-300 backdrop-blur-sm flex items-center gap-2"
             >
               ← Accueil
             </Link>
             {isAdmin && (
               <Link 
                 href="/admin"
-                className="px-4 py-2 bg-gradient-to-r from-[#C174F2] to-[#CB90F1] hover:from-[#CB90F1] hover:to-[#D5A8F2] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[#C174F2]/25 flex items-center gap-2"
+                className="px-4 py-2 bg-gradient-to-r from-[#7b2cbf] to-[#9d4edd] hover:from-[#9d4edd] hover:to-[#c77dff] rounded-lg transition-all duration-300 shadow-lg hover:shadow-[#7b2cbf]/25 flex items-center gap-2"
               >
                 <Shield size={18} />
                 Panel Admin
@@ -151,15 +151,15 @@ export default function Profile() {
           <button
             onClick={handleRefreshSession}
             disabled={isRefreshing}
-            className="px-3 py-1 bg-gradient-to-r from-[#F49C9C]/20 to-[#F6AEAE]/20 hover:from-[#F49C9C]/30 hover:to-[#F6AEAE]/30 border border-[#F49C9C]/30 rounded-lg transition-all duration-300 backdrop-blur-sm text-sm flex items-center gap-2 disabled:opacity-50"
+            className="px-3 py-1 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#9d4edd]/30 hover:to-[#c77dff]/30 border border-[#F49C9C]/30 rounded-lg transition-all duration-300 backdrop-blur-sm text-sm flex items-center gap-2 disabled:opacity-50"
           >
             {isRefreshing ? '🔄' : '🔄'} {isRefreshing ? 'Actualisation...' : 'Actualiser le rôle'}
           </button>
         </div>
 
         {/* Info notification */}
-        <div className="mb-4 sm:mb-6 bg-gradient-to-r from-[#F18585]/10 to-[#F49C9C]/10 border border-[#F49C9C]/30 rounded-xl p-3 sm:p-4 backdrop-blur-sm">
-          <p className="text-[#F6AEAE] text-sm">
+        <div className="mb-4 sm:mb-6 bg-gradient-to-r from-[#5a189a]/10 to-[#7b2cbf]/10 border border-[#F49C9C]/30 rounded-xl p-3 sm:p-4 backdrop-blur-sm">
+          <p className="text-[#e0aaff] text-sm">
             💡 <strong>Note :</strong> Si votre rôle a été modifié dans la base de données, cliquez sur "Actualiser le rôle" pour mettre à jour votre session et voir les nouveaux privilèges.
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function Profile() {
                 </h3>
                 <button
                   onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-[#F18585] to-[#F49C9C] hover:from-[#F49C9C] hover:to-[#F6AEAE] text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-[#F18585]/25 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] hover:from-[#F49C9C] hover:to-[#F6AEAE] text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-[#F18585]/25 flex items-center gap-2"
                 >
                   <Settings size={16} />
                   {isEditing ? 'Sauvegarder' : 'Modifier'}
@@ -248,10 +248,10 @@ export default function Profile() {
           {/* Sidebar */}
           <div className="mt-4 sm:mt-0 space-y-4 sm:space-y-6">
             {/* Security */}
-            <div className="bg-gradient-to-br from-black/80 via-[#C174F2]/5 to-[#F18585]/5 rounded-xl p-4 sm:p-6 backdrop-blur-md border border-[#F49C9C]/20">
+            <div className="bg-gradient-to-br from-black/80 via-[#5a189a]/5 to-[#7b2cbf]/5 rounded-xl p-4 sm:p-6 backdrop-blur-md border border-[#F49C9C]/20">
               <h3 className="text-lg font-semibold mb-4 text-white">Sécurité</h3>
               <div className="space-y-3">
-                <button className="w-full px-4 py-3 bg-gradient-to-r from-[#C174F2]/20 to-[#F18585]/20 hover:from-[#C174F2]/30 hover:to-[#F18585]/30 border border-[#CB90F1]/30 rounded-lg transition-all duration-300 text-left text-white backdrop-blur-sm">
+                <button className="w-full px-4 py-3 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#C174F2]/30 hover:to-[#F18585]/30 border border-[#CB90F1]/30 rounded-lg transition-all duration-300 text-left text-white backdrop-blur-sm">
                   Changer le mot de passe
                 </button>
                 <button className="w-full px-4 py-3 bg-gradient-to-r from-red-500/20 to-red-400/20 hover:from-red-500/30 hover:to-red-400/30 border border-red-400/30 text-red-300 rounded-lg transition-all duration-300 text-left backdrop-blur-sm">

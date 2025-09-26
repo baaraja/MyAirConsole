@@ -136,13 +136,13 @@ export default function SessionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-black/70 backdrop-blur-md border border-[#C174F2]/20 rounded-xl p-6 space-y-6 shadow-lg">
+  <div className="max-w-lg w-full bg-black/70 backdrop-blur-md border border-[#5a189a]/20 rounded-xl p-6 space-y-6 shadow-lg">
         
         {/* Bouton retour accueil */}
         <div className="flex justify-start">
           <Link 
             href="/"
-            className="px-4 py-2 bg-gradient-to-r from-[#C174F2]/20 to-[#F18585]/20 hover:from-[#C174F2]/30 hover:to-[#F18585]/30 border border-[#CB90F1]/30 rounded-lg transition-all duration-300 backdrop-blur-sm text-sm"
+            className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#5a189a]/30 hover:to-[#7b2cbf]/30 border border-[#9d4edd]/30 rounded-lg transition-all duration-300 backdrop-blur-sm text-sm"
           >
             ←
           </Link>
@@ -153,16 +153,16 @@ export default function SessionPage() {
           (userSession?.user?.id === currentSession.hostId ||
             (currentSession.players && currentSession.players.some((p: any) => p.userId === userSession?.user?.id)))
         ) && (
-          <div className="p-4 bg-gradient-to-br from-[#C174F2]/20 to-[#F18585]/20 border border-[#CB90F1]/30 rounded-lg">
+          <div className="p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg">
             {/* Numéro de session affiché en haut si session active */}
             <div className="mb-2 flex flex-col items-center">
-              <span className="text-xs text-[#EED5FB]/70">Numéro de session</span>
-              <span className="text-lg font-bold text-[#F18585]">{currentSession.id}</span>
+              <span className="text-xs text-[#e0aaff]/70">Numéro de session</span>
+              <span className="text-lg font-bold text-[#5a189a]">{currentSession.id}</span>
             </div>
             <div className="flex flex-col items-center mb-4">
-              <span className="text-xs text-[#EED5FB]/70">Code</span>
+              <span className="text-xs text-[#e0aaff]/70">Code</span>
               <button
-                className="ml-2 px-2 py-1 bg-[#C174F2]/30 rounded text-[#F18585] font-mono text-base hover:bg-[#F18585]/30 transition-all"
+                className="ml-2 px-2 py-1 bg-[#240046]/30 rounded text-[#5a189a] font-mono text-base hover:bg-[#10002b]/30 transition-all"
                 onClick={async () => {
                   await navigator.clipboard.writeText(
                     `${window.location.origin}/sessions/join?code=${currentSession.code}`
@@ -184,28 +184,28 @@ export default function SessionPage() {
               <ul className="flex flex-wrap gap-2 justify-center">
                 {/* Afficher l'hôte en premier, même s'il n'est pas dans players */}
                 {currentSession.host && (
-                  <li key={currentSession.host.id || 'host'} className="px-3 py-1 bg-[#F18585]/30 rounded-full text-sm font-semibold text-[#F18585] border border-[#F18585]/50">
-                    {currentSession.host.name || currentSession.host.email} <span className="text-xs text-[#F18585]">(Hôte)</span>
+                  <li key={currentSession.host.id || 'host'} className="px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50">
+                    {currentSession.host.name || currentSession.host.email} <span className="text-xs text-[#10002b]">(Hôte)</span>
                   </li>
                 )}
                 {/* Afficher les autres joueurs (hors hôte) */}
                 {currentSession.players && currentSession.players
                   .filter((player: any) => player.userId !== currentSession.hostId)
                   .map((player: any) => (
-                    <li key={player.id} className="px-3 py-1 bg-[#C174F2]/30 rounded-full text-sm">
+                    <li key={player.id} className="px-3 py-1 bg-[#7b2cbf]/30 rounded-full text-sm">
                       {player.name}
                     </li>
                   ))}
               </ul>
               {(!currentSession.players || currentSession.players.length === 0) && !currentSession.host && (
-                <p className="text-center text-[#EED5FB]/70">Aucun joueur connecté</p>
+                <p className="text-center text-[#e0aaff]/70">Aucun joueur connecté</p>
               )}
             </div>
             <div className="flex flex-col items-center">
               <div className="flex sm:flex-row gap-3">
                 <button
                   onClick={handleRejoinSession}
-                  className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 rounded-lg font-semibold shadow-md transition-all duration-300 disabled:opacity-50"
+                  className="px-4 py-2 bg-gradient-to-r from-red-500/20 to-red-400/20 hover:from-red-500/30 hover:to-red-400/30 border border-red-400/30 text-red-300 rounded-lg transition-all duration-300 text-left backdrop-blur-sm"
                 >
                   Rejoindre la partie
                 </button>
@@ -214,7 +214,7 @@ export default function SessionPage() {
                   <button
                     onClick={handleLeaveSession}
                     disabled={loading}
-                    className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-600 rounded-lg font-semibold shadow-md transition-all duration-300 disabled:opacity-50"
+                    className="px-4 py-2 bg-gradient-to-r from-red-500/20 to-red-400/20 hover:from-red-500/30 hover:to-red-400/30 border border-red-400/30 text-red-300 rounded-lg transition-all duration-300 text-left backdrop-blur-sm"
                   >
                     {loading ? "Suppression..." : "Supprimer la session"}
                   </button>
@@ -224,10 +224,10 @@ export default function SessionPage() {
           </div>
         )}
 
-        <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-[#C174F2] to-[#F18585] bg-clip-text text-transparent">
+  <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Rejoindre ou créer une session
         </h1>
-        <p className="text-center text-[#EED5FB]/70">
+  <p className="text-center text-[#e0aaff]/70">
           Entrez le code d'une session pour la rejoindre, ou laissez vide pour créer une nouvelle partie
         </p>
 
@@ -239,25 +239,25 @@ export default function SessionPage() {
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="Code de session"
-            className="w-full px-4 py-3 rounded-lg bg-black/30 border border-[#C174F2]/30 focus:outline-none focus:border-[#F18585]/50 focus:ring-1 focus:ring-[#F18585]/20"
+            className="w-full px-4 py-3 rounded-lg bg-black/30 border border-[#7b2cbf]/30 focus:outline-none focus:border-[#10002b]/50 focus:ring-1 focus:ring-[#10002b]/20"
           />
           <button
             onClick={handleJoin}
             disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-[#C174F2] to-[#F18585] hover:from-[#F18585] hover:to-[#C174F2] rounded-lg font-semibold shadow-md hover:shadow-[#F18585]/40 transition-all duration-300 disabled:opacity-50"
+            className="px-6 py-3 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] hover:from-[#7b2cbf] hover:to-[#5a189a] rounded-lg font-semibold shadow-md hover:shadow-[#10002b]/40 transition-all duration-300 disabled:opacity-50"
           >
             {loading ? "Traitement..." : code ? "Rejoindre la session" : "Créer une session"}
           </button>
         </div>
 
         {session && !currentSession && (
-          <div className="mt-4 p-4 bg-gradient-to-br from-[#C174F2]/20 to-[#F18585]/20 border border-[#CB90F1]/30 rounded-lg text-center">
+          <div className="mt-4 p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg text-center">
             <p className="mb-2">
               Session créée ! Code : <strong>{session.code}</strong>
             </p>
             <button
               onClick={() => router.push(`/games/${session.id}`)}
-              className="px-4 py-2 bg-gradient-to-r from-[#F18585] to-[#F49C9C] hover:from-[#F49C9C] hover:to-[#F18585] rounded-lg shadow-md font-semibold"
+              className="px-4 py-2 bg-gradient-to-r from-[#10002b] to-[#240046] hover:from-[#240046] hover:to-[#10002b] rounded-lg shadow-md font-semibold"
             >
               Démarrer le jeu
             </button>
