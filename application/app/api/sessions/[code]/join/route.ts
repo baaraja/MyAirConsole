@@ -26,3 +26,21 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
         return NextResponse.json({ error: "Impossible de rejoindre la session" }, { status: 500 });
     }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { code: string } }) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const playerId = searchParams.get('playerId');
+        if (!playerId) {
+            return NextResponse.json({ error: "playerId requis" }, { status: 400 });
+        }
+        const player = await prisma.player.findUnique({ where: { id: playerId } });
+        if (!player) {
+            return NextResponse.json({ error: "Joueur non trouvé" }, { status: 404 });
+        }
+        await prisma.player.delete({ where: { id: playerId } });
+        return NextResponse.json({ message: "Joueur supprimé" });
+    } catch (error) {
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    }
+}

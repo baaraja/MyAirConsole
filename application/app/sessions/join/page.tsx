@@ -15,61 +15,77 @@ export default function SessionPage() {
   const router = useRouter();
   const { data: userSession } = useSession();
 
-  // Vérifier s'il y a déjà une session active au chargement
   useEffect(() => {
-    // Vérification à chaque affichage : si l'utilisateur n'est pas membre, supprimer la session
-    if (currentSession) {
-      const storedPlayerId = sessionStorage.getItem('playerId');
-      const isHost = userSession?.user?.id === currentSession.hostId;
-      const isPlayer = currentSession.players && currentSession.players.some((p: any) =>
-        p.userId === userSession?.user?.id || (storedPlayerId && p.id === storedPlayerId)
-      );
-      if (!isHost && !isPlayer) {
-        sessionStorage.removeItem('activeGameSession');
-        setCurrentSession(null);
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCode = urlParams.get("code");
+      if (urlCode && urlCode.trim() !== "" && !userSession?.user) {
+        setCode(urlCode);
+        setTimeout(() => {
+          handleJoin();
+        }, 0);
       }
     }
+  }, [userSession]);
+
+  useEffect(() => {
+    // À chaque affichage, vérifier si l'utilisateur (connecté ou invité) est membre de la session stockée
     const storedSession = sessionStorage.getItem('activeGameSession');
+    const storedPlayerId = sessionStorage.getItem('playerId');
     if (storedSession) {
       try {
         const sessionData = JSON.parse(storedSession);
-        // Vérifier que la session est encore valide
-        checkSessionValidity(sessionData);
+        fetch(`/api/sessions/${sessionData.code}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(validSession => {
+            if (!validSession) {
+              sessionStorage.removeItem('activeGameSession');
+              setCurrentSession(null);
+              return;
+            }
+            // Afficher si l'utilisateur est host ou si le playerId est membre
+            const isHost = userSession?.user?.id === validSession.hostId;
+            const isPlayer = validSession.players?.some((p: any) =>
+              (userSession?.user?.id && p.userId === userSession.user.id) ||
+              (storedPlayerId && p.id === storedPlayerId)
+            );
+            if (isHost || isPlayer) {
+              setCurrentSession(validSession);
+            } else {
+              setCurrentSession(null);
+            }
+          });
       } catch (e) {
         // Session corrompue, la supprimer
         sessionStorage.removeItem('activeGameSession');
+        setCurrentSession(null);
       }
+    } else {
+      setCurrentSession(null);
     }
-  }, []);
-
-  const checkSessionValidity = async (sessionData: any) => {
-    try {
-      // Utiliser l'endpoint existant avec le code de la session
-      const res = await fetch(`/api/sessions/${sessionData.code}`);
-      if (res.ok) {
-        const validSession = await res.json();
-        setCurrentSession(validSession);
-      } else {
-        // Session n'existe plus, nettoyer le storage
-        sessionStorage.removeItem('activeGameSession');
-      }
-    } catch (e) {
-      sessionStorage.removeItem('activeGameSession');
-    }
-  };
+  }, [userSession]);
 
   const handleJoin = async () => {
     setLoading(true);
     setError("");
 
     try {
-      if (currentSession && !code) {
-        sessionStorage.removeItem('activeGameSession');
-        setCurrentSession(null);
+      // Empêcher la création de plusieurs invités pour la même session depuis le même navigateur
+      const storedPlayerId = sessionStorage.getItem('playerId');
+      const storedSession = sessionStorage.getItem('activeGameSession');
+      if (code && storedPlayerId && storedSession) {
+        // Vérifier si le playerId est déjà dans la session
+        const parsedSession = JSON.parse(storedSession);
+        if (parsedSession.code === code) {
+          // On est déjà membre, forcer l'affichage
+          setCurrentSession(parsedSession);
+          setLoading(false);
+          return;
+        }
       }
 
       let data;
-      if (code) {
+      if (code && code.trim() !== "") {
         // Rejoindre une session existante
         const res = await fetch(`/api/sessions/${code}/join`, { method: "POST" });
         data = await res.json();
@@ -78,8 +94,37 @@ export default function SessionPage() {
           setLoading(false);
           return;
         }
-      } else {
-        // Créer une nouvelle session
+        // Pour l'invité, on reconstruit un objet session complet pour le stockage local
+        if (data.player && data.gameSession) {
+          const sessionData = {
+            id: data.gameSession.id,
+            code: data.gameSession.code,
+            hostId: data.gameSession.hostId,
+            host: data.gameSession.host,
+            players: data.gameSession.players,
+            player: data.player,
+          };
+          sessionStorage.setItem('activeGameSession', JSON.stringify(sessionData));
+          sessionStorage.setItem('playerId', data.player.id);
+          sessionStorage.setItem('playerName', data.player.name);
+          setSession(sessionData);
+          // Recharger la session depuis l'API pour forcer l'affichage à jour
+          const res2 = await fetch(`/api/sessions/${data.gameSession.code}`);
+          if (res2.ok) {
+            const validSession = await res2.json();
+            setCurrentSession(validSession);
+          } else {
+            setCurrentSession(sessionData);
+          }
+          setLoading(false);
+          return;
+        }
+      } else if (!code || code.trim() === "") {
+        // Créer une nouvelle session UNIQUEMENT si aucun code n'est fourni
+        if (currentSession && !code) {
+          sessionStorage.removeItem('activeGameSession');
+          setCurrentSession(null);
+        }
         const res = await fetch(`/api/sessions`, { method: "POST" });
         data = await res.json();
         if (data.error) {
@@ -87,16 +132,18 @@ export default function SessionPage() {
           setLoading(false);
           return;
         }
+        sessionStorage.setItem('activeGameSession', JSON.stringify(data));
+        if (data.player?.id) {
+          sessionStorage.setItem('playerId', data.player.id);
+        }
+        if (data.player?.name) {
+          sessionStorage.setItem('playerName', data.player.name);
+        }
+        setSession(data);
+        setCurrentSession(data);
+        setLoading(false);
+        return;
       }
-
-      // Stocker la session et l'id du joueur dans sessionStorage
-      sessionStorage.setItem('activeGameSession', JSON.stringify(data));
-      if (data.player?.id) {
-        sessionStorage.setItem('playerId', data.player.id);
-      }
-      setSession(data);
-      setCurrentSession(data);
-      
     } catch (err) {
       setError("Erreur serveur");
       console.error(err);
@@ -107,20 +154,31 @@ export default function SessionPage() {
 
   const handleLeaveSession = async () => {
     if (!currentSession) return;
-      setLoading(true);
+    setLoading(true);
     try {
+      const storedPlayerId = sessionStorage.getItem('playerId');
+      // Si l'utilisateur est l'hôte, supprimer la session
+      if (userSession?.user?.id === currentSession.hostId) {
+        await fetch(`/api/sessions/${currentSession.code}`, { method: 'DELETE' });
+      } else if (storedPlayerId) {
+        // Sinon, supprimer le player (invité ou joueur connecté) via le nouvel endpoint
+        await fetch(`/api/sessions/${currentSession.code}/join?playerId=${storedPlayerId}`, { method: 'DELETE' });
+      }
       sessionStorage.removeItem('activeGameSession');
+      sessionStorage.removeItem('playerId');
+      sessionStorage.removeItem('playerName');
       setCurrentSession(null);
       setSession(null);
-      setError(""); 
+      setError("");
     } catch (err) {
-      setError("Erreur lors de la suppression de la session");
+      setError("Erreur lors de la suppression de la session ou du joueur");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Ne pas rediriger automatiquement l'invité après join, laisser le bouton "Rejoindre la partie" faire la redirection
   const handleRejoinSession = () => {
     if (currentSession) {
       router.push(`/games/${currentSession.id}`);
@@ -141,18 +199,13 @@ export default function SessionPage() {
         </div>
 
         {/* Afficher la session active pour l'hôte ou tout joueur (invité ou connecté) qui vient de rejoindre */}
-        {currentSession && (
-          (userSession?.user?.id === currentSession.hostId ||
-            (currentSession.players && currentSession.players.some((p: any) => {
-              const storedPlayerId = sessionStorage.getItem('playerId');
-              return (
-                p.userId === userSession?.user?.id ||
-                (session?.player?.id && p.id === session.player.id) ||
-                (storedPlayerId && p.id === storedPlayerId)
-              );
-            }))
-          )
-        ) && (
+        {currentSession && (() => {
+          const storedPlayerId = sessionStorage.getItem('playerId');
+          // Afficher la boîte si l'utilisateur est l'host OU si le playerId stocké est dans la session
+          if (userSession?.user?.id === currentSession.hostId) return true;
+          if (storedPlayerId && currentSession.players?.some((p: any) => p.id === storedPlayerId)) return true;
+          return false;
+        })() && (
           <div className="p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg">
             {/* Numéro de session affiché en haut si session active */}
             <div className="mb-2 flex flex-col items-center">
@@ -190,11 +243,13 @@ export default function SessionPage() {
                 )}
                 {/* Tous les joueurs (y compris l'hôte) ont le même style */}
                 {currentSession.players && currentSession.players.map((player: any) => {
-                  const isCurrent = session?.player?.id && player.id === session.player.id;
-                  // Style identique à l'hôte
+                  // Pour l'invité, on compare avec le playerId stocké et on affiche le nom stocké si besoin
+                  const storedPlayerId = sessionStorage.getItem('playerId');
+                  const storedPlayerName = sessionStorage.getItem('playerName');
+                  const isCurrent = (storedPlayerId && player.id === storedPlayerId) || (session?.player?.id && player.id === session.player.id);
                   return (
                     <li key={player.id} className={`px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50`}>
-                      {player.name} {isCurrent && <span className="text-xs text-[#10002b]">(Vous)</span>}
+                      {isCurrent && storedPlayerName ? storedPlayerName : player.name} {isCurrent && <span className="text-xs text-[#10002b]">(Vous)</span>}
                     </li>
                   );
                 })}
@@ -211,8 +266,8 @@ export default function SessionPage() {
                 >
                   Rejoindre la partie
                 </button>
-                {/* Ne montrer le bouton "Quitter" que si l'utilisateur est l'hôte */}
-                {userSession?.user?.id === currentSession.hostId && (
+                {/* Afficher le bouton "Quitter la session" pour l'hôte OU pour le joueur courant (invité ou connecté) */}
+                {(userSession?.user?.id === currentSession.hostId || (sessionStorage.getItem('playerId') && currentSession.players?.some((p: any) => p.id === sessionStorage.getItem('playerId')))) && (
                   <button
                     onClick={handleLeaveSession}
                     disabled={loading}
@@ -252,19 +307,7 @@ export default function SessionPage() {
           </button>
         </div>
 
-        {session && !currentSession && (
-          <div className="mt-4 p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg text-center">
-            <p className="mb-2">
-              Session créée ! Code : <strong>{session.code}</strong>
-            </p>
-            <button
-              onClick={() => router.push(`/games/${session.id}`)}
-              className="px-4 py-2 bg-gradient-to-r from-[#10002b] to-[#240046] hover:from-[#240046] hover:to-[#10002b] rounded-lg shadow-md font-semibold"
-            >
-              Démarrer le jeu
-            </button>
-          </div>
-        )}
+        {/* Pour les invités, ne pas afficher la boîte "Session créée" mais laisser la boîte de session join visible */}
       </div>
     </div>
   );
