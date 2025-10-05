@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { getSocket } from "@/lib/socket";
 
 export default function SessionPage() {
   const [code, setCode] = useState("");
@@ -14,6 +15,7 @@ export default function SessionPage() {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const { data: userSession } = useSession();
+  const socket = getSocket();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,9 +31,9 @@ export default function SessionPage() {
   }, [userSession]);
 
   useEffect(() => {
-    // À chaque affichage, vérifier si l'utilisateur (connecté ou invité) est membre de la session stockée
     const storedSession = sessionStorage.getItem('activeGameSession');
     const storedPlayerId = sessionStorage.getItem('playerId');
+
     if (storedSession) {
       try {
         const sessionData = JSON.parse(storedSession);
@@ -43,20 +45,26 @@ export default function SessionPage() {
               setCurrentSession(null);
               return;
             }
-            // Afficher si l'utilisateur est host ou si le playerId est membre
+
             const isHost = userSession?.user?.id === validSession.hostId;
             const isPlayer = validSession.players?.some((p: any) =>
               (userSession?.user?.id && p.userId === userSession.user.id) ||
               (storedPlayerId && p.id === storedPlayerId)
             );
+
             if (isHost || isPlayer) {
               setCurrentSession(validSession);
-            } else {
-              setCurrentSession(null);
+              
+              const storedPlayerId = sessionStorage.getItem('playerId');
+              const storedPlayerName = sessionStorage.getItem('playerName');
+
+              socket.emit('joinSession', validSession.code, {
+                id: storedPlayerId || socket.id,
+                name: storedPlayerName || `Invité-${socket.id.slice(0, 4)}`
+              });
             }
           });
-      } catch (e) {
-        // Session corrompue, la supprimer
+      } catch {
         sessionStorage.removeItem('activeGameSession');
         setCurrentSession(null);
       }
@@ -65,19 +73,47 @@ export default function SessionPage() {
     }
   }, [userSession]);
 
+  useEffect(() => {
+    if (!currentSession) return;
+
+    const handlePlayerJoined = (player: any) => {
+      setCurrentSession((prev: any) => {
+        if (!prev) return prev;
+        const exists = (prev.players || []).some((p: any) => p.id === player.id);
+        if (exists) return prev;
+        return { ...prev, players: [...(prev.players || []), player] };
+      });
+    };
+
+    const handlePlayerLeft = (playerId: string) => {
+      setCurrentSession((prev: any) => {
+        if (!prev) return prev;
+        return { ...prev, players: (prev.players || []).filter((p: any) => p.id !== playerId) };
+      });
+    };
+
+    socket.on('player_joined', handlePlayerJoined);
+    socket.on('player_left', handlePlayerLeft);
+    socket.on('controller_input', (data) => console.log('Input reçu:', data));
+
+    return () => {
+      socket.off('player_joined', handlePlayerJoined);
+      socket.off('player_left', handlePlayerLeft);
+      socket.off('controller_input');
+    };
+  }, [currentSession]);
+
   const handleJoin = async () => {
     setLoading(true);
     setError("");
 
     try {
-      // Empêcher la création de plusieurs invités pour la même session depuis le même navigateur
       const storedPlayerId = sessionStorage.getItem('playerId');
       const storedSession = sessionStorage.getItem('activeGameSession');
+
       if (code && storedPlayerId && storedSession) {
-        // Vérifier si le playerId est déjà dans la session
         const parsedSession = JSON.parse(storedSession);
         if (parsedSession.code === code) {
-          // On est déjà membre, forcer l'affichage
           setCurrentSession(parsedSession);
           setLoading(false);
           return;
@@ -86,7 +122,6 @@ export default function SessionPage() {
 
       let data;
       if (code && code.trim() !== "") {
-        // Rejoindre une session existante
         const res = await fetch(`/api/sessions/${code}/join`, { method: "POST" });
         data = await res.json();
         if (data.error) {
@@ -94,7 +129,6 @@ export default function SessionPage() {
           setLoading(false);
           return;
         }
-        // Pour l'invité, on reconstruit un objet session complet pour le stockage local
         if (data.player && data.gameSession) {
           const sessionData = {
             id: data.gameSession.id,
@@ -108,7 +142,7 @@ export default function SessionPage() {
           sessionStorage.setItem('playerId', data.player.id);
           sessionStorage.setItem('playerName', data.player.name);
           setSession(sessionData);
-          // Recharger la session depuis l'API pour forcer l'affichage à jour
+
           const res2 = await fetch(`/api/sessions/${data.gameSession.code}`);
           if (res2.ok) {
             const validSession = await res2.json();
@@ -119,8 +153,7 @@ export default function SessionPage() {
           setLoading(false);
           return;
         }
-      } else if (!code || code.trim() === "") {
-        // Créer une nouvelle session UNIQUEMENT si aucun code n'est fourni
+      } else {
         if (currentSession && !code) {
           sessionStorage.removeItem('activeGameSession');
           setCurrentSession(null);
@@ -133,12 +166,9 @@ export default function SessionPage() {
           return;
         }
         sessionStorage.setItem('activeGameSession', JSON.stringify(data));
-        if (data.player?.id) {
-          sessionStorage.setItem('playerId', data.player.id);
-        }
-        if (data.player?.name) {
-          sessionStorage.setItem('playerName', data.player.name);
-        }
+        if (data.player?.id) sessionStorage.setItem('playerId', data.player.id);
+        if (data.player?.name) sessionStorage.setItem('playerName', data.player.name);
+
         setSession(data);
         setCurrentSession(data);
         setLoading(false);
@@ -155,15 +185,16 @@ export default function SessionPage() {
   const handleLeaveSession = async () => {
     if (!currentSession) return;
     setLoading(true);
+
     try {
       const storedPlayerId = sessionStorage.getItem('playerId');
-      // Si l'utilisateur est l'hôte, supprimer la session
+
       if (userSession?.user?.id === currentSession.hostId) {
         await fetch(`/api/sessions/${currentSession.code}`, { method: 'DELETE' });
       } else if (storedPlayerId) {
-        // Sinon, supprimer le player (invité ou joueur connecté) via le nouvel endpoint
         await fetch(`/api/sessions/${currentSession.code}/join?playerId=${storedPlayerId}`, { method: 'DELETE' });
       }
+
       sessionStorage.removeItem('activeGameSession');
       sessionStorage.removeItem('playerId');
       sessionStorage.removeItem('playerName');
@@ -178,12 +209,13 @@ export default function SessionPage() {
     }
   };
 
-  // Ne pas rediriger automatiquement l'invité après join, laisser le bouton "Rejoindre la partie" faire la redirection
   const handleRejoinSession = () => {
-    if (currentSession) {
-      router.push(`/games/${currentSession.id}`);
-    }
+    if (currentSession) router.push(`/games/${currentSession.id}`);
   };
+
+  const uniquePlayers = currentSession
+    ? Array.from(new Map((currentSession.players || []).map(p => [p.id, p])).values())
+    : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
@@ -198,16 +230,16 @@ export default function SessionPage() {
           </Link>
         </div>
 
-        {/* Afficher la session active pour l'hôte ou tout joueur (invité ou connecté) qui vient de rejoindre */}
+        {/* Afficher la session active pour l'hôte ou joueur existant */}
         {currentSession && (() => {
           const storedPlayerId = sessionStorage.getItem('playerId');
-          // Afficher la boîte si l'utilisateur est l'host OU si le playerId stocké est dans la session
-          if (userSession?.user?.id === currentSession.hostId) return true;
-          if (storedPlayerId && currentSession.players?.some((p: any) => p.id === storedPlayerId)) return true;
+          if (userSession?.user?.id === currentSession.hostId)
+            return true;
+          if (storedPlayerId && currentSession.players?.some((p: any) => p.id === storedPlayerId))
+            return true;
           return false;
         })() && (
           <div className="p-4 bg-gradient-to-br from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg">
-            {/* Numéro de session affiché en haut si session active */}
             <div className="mb-2 flex flex-col items-center">
               <span className="text-xs text-[#e0aaff]/70">Numéro de session</span>
               <span className="text-lg font-bold text-[#5a189a]">{currentSession.id}</span>
@@ -217,9 +249,7 @@ export default function SessionPage() {
               <button
                 className="ml-2 px-2 py-1 bg-[#240046]/30 rounded text-[#5a189a] font-mono text-base hover:bg-[#10002b]/30 transition-all"
                 onClick={async () => {
-                  await navigator.clipboard.writeText(
-                    `${window.location.origin}/sessions/join?code=${currentSession.code}`
-                  );
+                  await navigator.clipboard.writeText(`${window.location.origin}/sessions/join?code=${currentSession.code}`);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1500);
                 }}
@@ -227,37 +257,46 @@ export default function SessionPage() {
               >
                 {currentSession.code}
               </button>
-              {copied && (
-                <span className="ml-2 text-green-400 text-xs">Lien copié !</span>
-              )}
+              {copied && <span className="ml-2 text-green-400 text-xs">Lien copié !</span>}
             </div>
-            {/* Liste des joueurs connectés */}
+
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2 text-center">Joueurs connectés</h3>
               <ul className="flex flex-wrap gap-2 justify-center">
-                {/* Afficher l'hôte en premier, même s'il n'est pas dans players */}
                 {currentSession.host && (
-                  <li key={currentSession.host.id || 'host'} className="px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50">
+                  <li
+                    key={`host-${currentSession.host.id}`}
+                    className="px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50"
+                  >
                     {currentSession.host.name || currentSession.host.email} <span className="text-xs text-[#10002b]">(Hôte)</span>
                   </li>
                 )}
-                {/* Tous les joueurs (y compris l'hôte) ont le même style */}
-                {currentSession.players && currentSession.players.map((player: any) => {
-                  // Pour l'invité, on compare avec le playerId stocké et on affiche le nom stocké si besoin
-                  const storedPlayerId = sessionStorage.getItem('playerId');
-                  const storedPlayerName = sessionStorage.getItem('playerName');
-                  const isCurrent = (storedPlayerId && player.id === storedPlayerId) || (session?.player?.id && player.id === session.player.id);
-                  return (
-                    <li key={player.id} className={`px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50`}>
-                      {isCurrent && storedPlayerName ? storedPlayerName : player.name} {isCurrent && <span className="text-xs text-[#10002b]">(Vous)</span>}
-                    </li>
-                  );
-                })}
+
+                {uniquePlayers
+                  .filter((p: any) => p.id !== currentSession.host?.id)
+                  .map((player: any) => {
+                    const storedPlayerId = sessionStorage.getItem('playerId');
+                    const storedPlayerName = sessionStorage.getItem('playerName');
+                    const isCurrent =
+                      (storedPlayerId && player.id === storedPlayerId) ||
+                      (session?.player?.id && player.id === session.player.id);
+
+                    return (
+                      <li
+                        key={`player-${player.id}`}
+                        className="px-3 py-1 bg-[#e0aaff]/30 rounded-full text-sm font-semibold text-[#10002b] border border-[#10002b]/50"
+                      >
+                        {isCurrent && storedPlayerName ? storedPlayerName : player.name}{" "}
+                        {isCurrent && <span className="text-xs text-[#10002b]">(Vous)</span>}
+                      </li>
+                    );
+                  })}
               </ul>
               {(!currentSession.players || currentSession.players.length === 0) && !currentSession.host && (
                 <p className="text-center text-[#e0aaff]/70">Aucun joueur connecté</p>
               )}
             </div>
+
             <div className="flex flex-col items-center">
               <div className="flex sm:flex-row gap-3">
                 <button
@@ -266,7 +305,6 @@ export default function SessionPage() {
                 >
                   Rejoindre la partie
                 </button>
-                {/* Afficher le bouton "Quitter la session" pour l'hôte OU pour le joueur courant (invité ou connecté) */}
                 {(userSession?.user?.id === currentSession.hostId || (sessionStorage.getItem('playerId') && currentSession.players?.some((p: any) => p.id === sessionStorage.getItem('playerId')))) && (
                   <button
                     onClick={handleLeaveSession}
@@ -306,8 +344,6 @@ export default function SessionPage() {
             {loading ? "Traitement..." : code ? "Rejoindre la session" : "Créer une session"}
           </button>
         </div>
-
-        {/* Pour les invités, ne pas afficher la boîte "Session créée" mais laisser la boîte de session join visible */}
       </div>
     </div>
   );
