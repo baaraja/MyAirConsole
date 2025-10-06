@@ -9,7 +9,7 @@ export default function GamesPage() {
 
   useEffect(() => {
     const fetchGames = async () => {
-      const res = await fetch("/api/games"); // API pour récupérer toutes les parties
+      const res = await fetch("/api/games");
       const data = await res.json();
       setGames(data.games || []);
       setLoading(false);
@@ -22,7 +22,6 @@ export default function GamesPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Catalogue de jeux</h1>
-
       {games.length === 0 ? (
         <p>Aucun jeu disponible pour le moment</p>
       ) : (

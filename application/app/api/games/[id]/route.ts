@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const sessionId = params.id;
-
     const games = await prisma.game.findMany({
       where: { sessionId },
       select: {
@@ -12,7 +11,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         state: true,
       },
     });
-
     return NextResponse.json(games);
   } catch (error) {
     console.error(error);

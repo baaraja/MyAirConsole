@@ -13,12 +13,10 @@ export default function ControllerPage() {
   useEffect(() => {
     const s = getSocket();
     setSocket(s);
-
     if (code) {
       s.emit('joinSession', code);
       setConnected(true);
     }
-
     return () => {
       if (s) s.disconnect();
     };
@@ -33,14 +31,10 @@ export default function ControllerPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black text-white flex flex-col items-center justify-center p-4">
       <h1 className="text-2xl font-bold mb-6">Manette</h1>
-
       {!connected && <p>Connexion à la session...</p>}
-
       {connected && (
         <div className="relative w-64 h-64">
-          {/* D-pad circulaire avec trapèzes arrondis */}
           <div className="absolute top-1/2 left-1/2 w-64 h-64 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-
             {/* Haut */}
             <button
               onClick={() => sendInput("up")}
@@ -63,7 +57,6 @@ export default function ControllerPage() {
                 }}
               />
             </button>
-
             {/* Droite */}
             <button
               onClick={() => sendInput("right")}
@@ -86,7 +79,6 @@ export default function ControllerPage() {
                 }}
               />
             </button>
-
             {/* Bas */}
             <button
               onClick={() => sendInput("down")}
@@ -109,7 +101,6 @@ export default function ControllerPage() {
                 }}
               />
             </button>
-
             {/* Gauche */}
             <button
               onClick={() => sendInput("left")}
@@ -132,8 +123,7 @@ export default function ControllerPage() {
                 }}
               />
             </button>
-
-            {/* Bouton central ACTION */}
+            {/* Centre */}
             <button
               onClick={() => sendInput("action")}
               className="absolute w-20 h-20 bg-purple-850 rounded top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-bold shadow-lg z-20"

@@ -14,18 +14,14 @@ export default function GamePage() {
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const socket = getSocket();
-
   const GRID_COLS = 4;
 
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        // Récupérer session et joueurs uniquement depuis l’API
         const resSession = await fetch(`/api/sessions/${sessionId}`);
         const dataSession = await resSession.json();
         setSession(dataSession);
-
-        // Récupérer les jeux
         const resGames = await fetch(`/api/games/${sessionId}`);
         const dataGames = await resGames.json();
         setGames(dataGames || []);
@@ -35,20 +31,16 @@ export default function GamePage() {
         setLoading(false);
       }
     };
-
     fetchSession();
   }, [sessionId]);
 
   useEffect(() => {
     if (!socket || !games.length) return;
-
     const handleInput = (data: { direction: string }) => {
       const rowCount = Math.ceil(games.length / GRID_COLS);
       const colCount = GRID_COLS;
-
       let row = Math.floor(selectedIndex / colCount);
       let col = selectedIndex % colCount;
-
       if (data.direction === "up") row = Math.max(row - 1, 0);
       if (data.direction === "down") row = Math.min(row + 1, rowCount - 1);
       if (data.direction === "left") {
@@ -65,13 +57,10 @@ export default function GamePage() {
           col = 0;
         }
       }
-
       const newIndex = row * colCount + col;
       if (newIndex < games.length) setSelectedIndex(newIndex);
-
       if (data.direction === "action") handleStartGame(games[selectedIndex]);
     };
-
     socket.on("controller_input", handleInput);
     return () => socket.off("controller_input", handleInput);
   }, [socket, games, selectedIndex]);
@@ -107,11 +96,9 @@ export default function GamePage() {
             ←
           </Link>
         </div>
-
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Session : {session.code}
         </h1>
-
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Joueurs :</h2>
           {session.players?.length ? (
@@ -120,15 +107,12 @@ export default function GamePage() {
             </ul>
           ) : <p>Aucun joueur</p>}
         </div>
-
         <div
           id="unity-container"
           className="h-96 w-full bg-black/30 border border-[#240046]/20 rounded-lg flex items-center justify-center text-[#240046] mb-6"
         >
           Unity WebGL sera ici
         </div>
-
-        {/* Grid de jeux */}
         <div className="grid grid-cols-4 gap-4 overflow-hidden max-h-[60vh] p-2 border border-[#240046]/20 rounded-lg">
           {games.map((g, i) => (
             <div

@@ -33,7 +33,6 @@ export default function SessionPage() {
   useEffect(() => {
     const storedSession = sessionStorage.getItem('activeGameSession');
     const storedPlayerId = sessionStorage.getItem('playerId');
-
     if (storedSession) {
       try {
         const sessionData = JSON.parse(storedSession);
@@ -45,22 +44,16 @@ export default function SessionPage() {
               setCurrentSession(null);
               return;
             }
-
             const isHost = userSession?.user?.id === validSession.hostId;
             const isPlayer = validSession.players?.some((p: any) =>
               (userSession?.user?.id && p.userId === userSession.user.id) ||
               (storedPlayerId && p.id === storedPlayerId)
             );
-
             if (isHost || isPlayer) {
               setCurrentSession(validSession);
-              
-              const storedPlayerId = sessionStorage.getItem('playerId');
-              const storedPlayerName = sessionStorage.getItem('playerName');
-
               socket.emit('joinSession', validSession.code, {
-                id: storedPlayerId || socket.id,
-                name: storedPlayerName || `Invité-${socket.id.slice(0, 4)}`
+                id: sessionStorage.getItem('playerId') || socket.id,
+                name: sessionStorage.getItem('playerName') || `Invité-${(socket.id ?? '0000').slice(0, 4)}`
               });
             }
           });
@@ -75,12 +68,10 @@ export default function SessionPage() {
 
   useEffect(() => {
     if (!currentSession) return;
-
     const handlePlayerJoined = (player: any) => {
       setCurrentSession((prev: any) => {
-        if (!prev) return prev;
         const exists = (prev.players || []).some((p: any) => p.id === player.id);
-        if (exists) return prev;
+        if (!prev || exists) return prev;
         return { ...prev, players: [...(prev.players || []), player] };
       });
     };
@@ -91,11 +82,9 @@ export default function SessionPage() {
         return { ...prev, players: (prev.players || []).filter((p: any) => p.id !== playerId) };
       });
     };
-
     socket.on('player_joined', handlePlayerJoined);
     socket.on('player_left', handlePlayerLeft);
     socket.on('controller_input', (data) => console.log('Input reçu:', data));
-
     return () => {
       socket.off('player_joined', handlePlayerJoined);
       socket.off('player_left', handlePlayerLeft);
@@ -106,11 +95,9 @@ export default function SessionPage() {
   const handleJoin = async () => {
     setLoading(true);
     setError("");
-
     try {
       const storedPlayerId = sessionStorage.getItem('playerId');
       const storedSession = sessionStorage.getItem('activeGameSession');
-
       if (code && storedPlayerId && storedSession) {
         const parsedSession = JSON.parse(storedSession);
         if (parsedSession.code === code) {
@@ -119,7 +106,6 @@ export default function SessionPage() {
           return;
         }
       }
-
       let data;
       if (code && code.trim() !== "") {
         const res = await fetch(`/api/sessions/${code}/join`, { method: "POST" });
@@ -142,7 +128,6 @@ export default function SessionPage() {
           sessionStorage.setItem('playerId', data.player.id);
           sessionStorage.setItem('playerName', data.player.name);
           setSession(sessionData);
-
           const res2 = await fetch(`/api/sessions/${data.gameSession.code}`);
           if (res2.ok) {
             const validSession = await res2.json();
@@ -168,7 +153,6 @@ export default function SessionPage() {
         sessionStorage.setItem('activeGameSession', JSON.stringify(data));
         if (data.player?.id) sessionStorage.setItem('playerId', data.player.id);
         if (data.player?.name) sessionStorage.setItem('playerName', data.player.name);
-
         setSession(data);
         setCurrentSession(data);
         setLoading(false);
@@ -185,16 +169,13 @@ export default function SessionPage() {
   const handleLeaveSession = async () => {
     if (!currentSession) return;
     setLoading(true);
-
     try {
       const storedPlayerId = sessionStorage.getItem('playerId');
-
       if (userSession?.user?.id === currentSession.hostId) {
         await fetch(`/api/sessions/${currentSession.code}`, { method: 'DELETE' });
       } else if (storedPlayerId) {
         await fetch(`/api/sessions/${currentSession.code}/join?playerId=${storedPlayerId}`, { method: 'DELETE' });
       }
-
       sessionStorage.removeItem('activeGameSession');
       sessionStorage.removeItem('playerId');
       sessionStorage.removeItem('playerName');
@@ -213,9 +194,8 @@ export default function SessionPage() {
     if (currentSession) router.push(`/games/${currentSession.id}`);
   };
 
-  const uniquePlayers = currentSession
-    ? Array.from(new Map((currentSession.players || []).map(p => [p.id, p])).values())
-    : [];
+  const uniquePlayers = currentSession ?
+    Array.from(new Map((currentSession.players || []).map(p => [p.id, p])).values()) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
@@ -229,7 +209,6 @@ export default function SessionPage() {
             ←
           </Link>
         </div>
-
         {/* Afficher la session active pour l'hôte ou joueur existant */}
         {currentSession && (() => {
           const storedPlayerId = sessionStorage.getItem('playerId');
@@ -259,7 +238,6 @@ export default function SessionPage() {
               </button>
               {copied && <span className="ml-2 text-green-400 text-xs">Lien copié !</span>}
             </div>
-
             <div className="mb-4">
               <h3 className="text-lg font-semibold mb-2 text-center">Joueurs connectés</h3>
               <ul className="flex flex-wrap gap-2 justify-center">
@@ -271,7 +249,6 @@ export default function SessionPage() {
                     {currentSession.host.name || currentSession.host.email} <span className="text-xs text-[#10002b]">(Hôte)</span>
                   </li>
                 )}
-
                 {uniquePlayers
                   .filter((p: any) => p.id !== currentSession.host?.id)
                   .map((player: any) => {
@@ -280,7 +257,6 @@ export default function SessionPage() {
                     const isCurrent =
                       (storedPlayerId && player.id === storedPlayerId) ||
                       (session?.player?.id && player.id === session.player.id);
-
                     return (
                       <li
                         key={`player-${player.id}`}
@@ -296,7 +272,6 @@ export default function SessionPage() {
                 <p className="text-center text-[#e0aaff]/70">Aucun joueur connecté</p>
               )}
             </div>
-
             <div className="flex flex-col items-center">
               <div className="flex sm:flex-row gap-3">
                 <button
@@ -318,16 +293,13 @@ export default function SessionPage() {
             </div>
           </div>
         )}
-
         <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Rejoindre ou créer une session
         </h1>
         <p className="text-center text-[#e0aaff]/70">
           Entrez le code d'une session pour la rejoindre, ou laissez vide pour créer une nouvelle partie
         </p>
-
         {error && <p className="text-red-400 text-center">{error}</p>}
-
         <div className="flex flex-col gap-4">
           <input
             type="text"

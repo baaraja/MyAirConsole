@@ -1,4 +1,3 @@
-// Join session API endpoint - POST → rejoindre via code
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
