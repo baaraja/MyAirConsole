@@ -18,8 +18,8 @@ export default function LandingNavbar() {
   const navItems = [
     { name: 'Accueil', link: '/' },
     { name: 'Games', link: '#projects' },
-    { name: 'Room', link: '/news' },
-    { name: 'Événements', link: '/events' },
+    { name: 'Room', link: '/sessions/join' },
+    { name: 'Controller', link: '/controller' },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,22 +30,29 @@ export default function LandingNavbar() {
         {/* Desktop */}
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navItems} />
+          <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-white transition duration-200 lg:flex lg:space-x-2">
+            {navItems.map((item, idx) => (
+              <a
+                key={`nav-link-${idx}`}
+                href={item.name === 'Controller' ? '#' : item.link}
+                onClick={(e) => {
+                  if (item.name === 'Controller') {
+                    e.preventDefault();
+                    const code = prompt("Code de session pour la manette :");
+                    if (code && code.trim()) {
+                      window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                    } else {
+                      window.open("/sessions/join", '_blank');
+                    }
+                  }
+                }}
+                className="relative px-4 py-2 text-white transition-colors hover:bg-white/10 rounded-full"
+              >
+                <span className="relative z-20">{item.name}</span>
+              </a>
+            ))}
+          </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const code = prompt("Code de session pour la manette :");
-                if (code && code.trim()) {
-                  window.open(`/sessions/${code.trim()}/controller`, '_blank');
-                } else {
-                  window.open("/sessions/join", '_blank');
-                }
-              }}
-              className="inline-flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
-              title="Ouvrir contrôleur mobile"
-            >
-              🎮
-            </button>
             <UserButton />
             <NavbarButton href="#contact" variant="secondary">
               Contact
@@ -69,28 +76,25 @@ export default function LandingNavbar() {
             {navItems.map((item, idx) => (
               <a
                 key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
+                href={item.name === 'Controller' ? '#' : item.link}
+                onClick={(e) => {
+                  if (item.name === 'Controller') {
+                    e.preventDefault();
+                    const code = prompt("Code de session pour la manette :");
+                    if (code && code.trim()) {
+                      window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                    } else {
+                      window.open("/sessions/join", '_blank');
+                    }
+                  }
+                  setIsMobileMenuOpen(false);
+                }}
                 className="relative text-white dark:text-neutral-300"
               >
                 <span className="block">{item.name}</span>
               </a>
             ))}
             <div className="flex w-full flex-col gap-4">
-              <button
-                onClick={() => {
-                  const code = prompt("Code de session pour la manette :");
-                  if (code && code.trim()) {
-                    window.open(`/sessions/${code.trim()}/controller`, '_blank');
-                  } else {
-                    window.open("/sessions/join", '_blank');
-                  }
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg text-white"
-              >
-                🎮 Contrôleur Mobile
-              </button>
               <div onClick={() => setIsMobileMenuOpen(false)}>
                 <UserButton className="w-full" />
               </div>
