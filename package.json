@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build --turbopack",
     "start": "next start",
+    "socket": "node server.ts",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
     "lint": "eslint --fix .",

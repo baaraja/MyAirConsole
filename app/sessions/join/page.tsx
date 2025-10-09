@@ -21,11 +21,14 @@ export default function SessionPage() {
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       const urlCode = urlParams.get("code");
-      if (urlCode && urlCode.trim() !== "" && !userSession?.user) {
+      if (urlCode && urlCode.trim() !== "") {
         setCode(urlCode);
-        setTimeout(() => {
-          handleJoin();
-        }, 0);
+        // Auto-joindre pour tous (connectés et invités)
+        if (!currentSession || currentSession.code !== urlCode) {
+          setTimeout(() => {
+            handleJoin();
+          }, 100);
+        }
       }
     }
   }, [userSession]);
@@ -84,7 +87,12 @@ export default function SessionPage() {
     };
     socket.on('player_joined', handlePlayerJoined);
     socket.on('player_left', handlePlayerLeft);
-    socket.on('controller_input', (data) => console.log('Input reçu:', data));
+    socket.on('controller_input', (data: any) => console.log('Input reçu:', data));
+    
+    // Debug Socket.IO
+    socket.on('connect', () => console.log('✅ Socket connecté:', socket.id));
+    socket.on('disconnect', () => console.log('❌ Socket déconnecté'));
+    socket.on('connect_error', (error: any) => console.error('🔥 Erreur Socket:', error));
     return () => {
       socket.off('player_joined', handlePlayerJoined);
       socket.off('player_left', handlePlayerLeft);
