@@ -37,6 +37,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("controller_input", (data) => {
+    // Transmettre l'input avec l'ID du player
     io.to(data.code).emit("controller_input", data);
   });
 

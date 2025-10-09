@@ -125,7 +125,7 @@ export default function SessionPage() {
               // Pour l'hôte, créer une entrée de joueur virtuelle pour Socket.IO
               const hostPlayer = {
                 id: `host-${existingSession.hostId}`,
-                name: userSession.user.name || "Hôte",
+                name: userSession.user.email || "Hôte",
                 userId: userSession.user.id
               };
               
