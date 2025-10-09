@@ -19,7 +19,7 @@ export default function LandingNavbar() {
     { name: 'Accueil', link: '/' },
     { name: 'Games', link: '/games' },
     { name: 'Room', link: '/sessions/join' },
-    { name: 'Controller', link: '/controller' },
+    { name: 'Controller', link: '#' },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -36,7 +36,8 @@ export default function LandingNavbar() {
                 return (
                   <button
                     key={`nav-${idx}`}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       const code = prompt("Code de session pour la manette :");
                       if (code && code.trim()) {
                         window.open(`/sessions/${code.trim()}/controller`, '_blank');
@@ -85,7 +86,8 @@ export default function LandingNavbar() {
                 return (
                   <button
                     key={`mobile-link-${idx}`}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       const code = prompt("Code de session pour la manette :");
                       if (code && code.trim()) {
                         window.open(`/sessions/${code.trim()}/controller`, '_blank');
