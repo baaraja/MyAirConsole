@@ -17,7 +17,7 @@ import {
 export default function LandingNavbar() {
   const navItems = [
     { name: 'Accueil', link: '/' },
-    { name: 'Games', link: '#projects' },
+    { name: 'Games', link: '/games' },
     { name: 'Room', link: '/sessions/join' },
     { name: 'Controller', link: '/controller' },
   ];
@@ -30,7 +30,26 @@ export default function LandingNavbar() {
         {/* Desktop */}
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navItems} />
+          <div className="absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-white transition duration-200 lg:flex lg:space-x-2">
+            {navItems.map((item, idx) => (
+              <a
+                key={`nav-${idx}`}
+                href={item.name === 'Controller' ? '#' : item.link}
+                onClick={(e) => {
+                  if (item.name === 'Controller') {
+                    e.preventDefault();
+                    const code = prompt("Code de session pour la manette :");
+                    if (code && code.trim()) {
+                      window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                    }
+                  }
+                }}
+                className="relative px-4 py-2 text-white transition-colors hover:bg-white/10 rounded-full"
+              >
+                <span className="relative z-20">{item.name}</span>
+              </a>
+            ))}
+          </div>
           <div className="flex items-center gap-3">
             <UserButton />
             <NavbarButton href="#contact" variant="secondary">
@@ -62,8 +81,6 @@ export default function LandingNavbar() {
                     const code = prompt("Code de session pour la manette :");
                     if (code && code.trim()) {
                       window.open(`/sessions/${code.trim()}/controller`, '_blank');
-                    } else {
-                      window.open("/sessions/join", '_blank');
                     }
                   }
                   setIsMobileMenuOpen(false);
