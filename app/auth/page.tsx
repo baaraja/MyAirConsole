@@ -1,5 +1,17 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { Spotlight } from "@/components/ui/spotlight";
+import { Suspense } from "react";
+
+function AuthContent() {
+  return (
+    <div className="w-full max-w-xs">
+      {/* Glass morphism container */}
+      <div className="backdrop-blur-xl bg-neutral-800/20 border border-neutral-700/50 rounded-xl p-4 shadow-2xl">
+        <LoginForm />
+      </div>
+    </div>
+  );
+}
 
 export default function AuthPage() {
   return (
@@ -22,12 +34,15 @@ export default function AuthPage() {
       
       {/* Main content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4 py-6">
-        <div className="w-full max-w-xs">
-          {/* Glass morphism container */}
-          <div className="backdrop-blur-xl bg-neutral-800/20 border border-neutral-700/50 rounded-xl p-4 shadow-2xl">
-            <LoginForm />
+        <Suspense fallback={
+          <div className="w-full max-w-xs">
+            <div className="backdrop-blur-xl bg-neutral-800/20 border border-neutral-700/50 rounded-xl p-4 shadow-2xl">
+              <div className="animate-pulse">Chargement...</div>
+            </div>
           </div>
-        </div>
+        }>
+          <AuthContent />
+        </Suspense>
       </div>
       
       {/* Gradient orbs */}
