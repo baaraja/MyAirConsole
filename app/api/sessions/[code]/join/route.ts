@@ -14,6 +14,17 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
         if (!gameSession) {
             return NextResponse.json({ error: "Session non trouvée" }, { status: 404 });
         }
+        if (isUser && session?.user?.id && gameSession.hostId === session.user.id) {
+            // L'hôte ne doit pas créer un player, il utilise son statut d'hôte
+            const hostPlayer = {
+                id: `host-${gameSession.hostId}`,
+                name: session.user.email || "Hôte",
+                userId: session.user.id,
+                sessionId: gameSession.id,
+            };
+            return NextResponse.json({ player: hostPlayer, gameSession });
+        }
+
         let player = null;
         if (isUser && session?.user?.id) {
             player = await prisma.player.findFirst({
