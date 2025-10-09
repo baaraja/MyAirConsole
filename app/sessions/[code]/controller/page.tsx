@@ -13,8 +13,12 @@ export default function ControllerPage() {
   useEffect(() => {
     const s = getSocket();
     setSocket(s);
-    if (code) {
-      s.emit('joinSession', code);
+    if (code && s) {
+      // Envoyer les données du player comme le serveur l'attend
+      s.emit('joinSession', code, {
+        id: s.id,
+        name: `Controller-${(s.id || '0000').slice(0, 4)}`
+      });
       setConnected(true);
     }
     return () => {
