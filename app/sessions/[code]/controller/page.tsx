@@ -9,20 +9,38 @@ export default function ControllerPage() {
   const code = params?.code || "";
   const [socket, setSocket] = useState<any>(null);
   const [connected, setConnected] = useState(false);
+  const [player, setPlayer] = useState<any>(null);
 
   useEffect(() => {
-    const s = getSocket();
-    setSocket(s);
-    if (code && s) {
-      // Envoyer les données du player comme le serveur l'attend
-      s.emit('joinSession', code, {
-        id: s.id,
-        name: `Controller-${(s.id || '0000').slice(0, 4)}`
-      });
-      setConnected(true);
+    const initController = async () => {
+      try {
+        const response = await fetch(`/api/sessions/${code}/join`, {
+          method: 'POST',
+        });
+        if (!response.ok) {
+          throw new Error('Erreur lors de la connexion à la session');
+        }
+        const data = await response.json();
+        setPlayer(data.player);
+        const s = getSocket();
+        setSocket(s);
+        if (s && data.player) {
+          s.emit('joinSession', code, {
+            id: data.player.id,
+            name: data.player.name,
+            userId: data.player.userId
+          });
+          setConnected(true);
+        }
+      } catch (error) {
+        console.error('Erreur de connexion:', error);
+      }
+    };
+    if (code) {
+      initController();
     }
     return () => {
-      if (s) s.disconnect();
+      if (socket) socket.disconnect();
     };
   }, [code]);
 

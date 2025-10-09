@@ -13,13 +13,24 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
         if (!gameSession) {
             return NextResponse.json({ error: "Session non trouvée" }, { status: 404 });
         }
-        const player = await prisma.player.create({
-            data: {
-                name: isUser ? session?.user?.name || generatedName : generatedName,
-                userId: isUser ? session?.user?.id : null,
-                sessionId: gameSession.id,
-            },
-        });
+        let player = null;
+        if (isUser && session?.user?.id) {
+            player = await prisma.player.findFirst({
+                where: {
+                    userId: session.user.id,
+                    sessionId: gameSession.id,
+                },
+            });
+        }
+        if (!player) {
+            player = await prisma.player.create({
+                data: {
+                    name: isUser ? session?.user?.name || generatedName : generatedName,
+                    userId: isUser ? session?.user?.id : null,
+                    sessionId: gameSession.id,
+                },
+            });
+        }
         return NextResponse.json({ player, gameSession });
     } catch (error) {
         return NextResponse.json({ error: "Impossible de rejoindre la session" }, { status: 500 });
