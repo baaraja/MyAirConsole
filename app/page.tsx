@@ -77,21 +77,6 @@ export default function Home() {
                 Commencer à jouer
                 <ArrowRight className="size-4" />
               </LiquidButton>
-              
-              {/* BOUTON CONTRÔLEUR TEST */}
-              <button
-                onClick={() => {
-                  const code = prompt("Code de session pour la manette :");
-                  if (code && code.trim()) {
-                    window.open(`/sessions/${code.trim()}/controller`, '_blank');
-                  } else {
-                    window.open("/sessions/join", '_blank');
-                  }
-                }}
-                className="rounded-full px-8 py-4 bg-red-500 text-white font-bold text-lg"
-              >
-                🎮 TEST CONTRÔLEUR
-              </button>
             </div>
           </div>
         </section>

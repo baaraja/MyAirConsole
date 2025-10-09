@@ -134,16 +134,6 @@ export default function GamePage() {
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Session : {session.code}
         </h1>
-        
-        {/* BOUTON TEST TRÈS VISIBLE */}
-        <div className="mb-6 p-4 bg-red-500 rounded-lg">
-          <button
-            onClick={() => window.open(`/sessions/${session.code}/controller`, '_blank')}
-            className="w-full p-4 bg-yellow-500 text-black font-bold rounded-lg text-xl"
-          >
-            🎮 OUVRIR CONTRÔLEUR MOBILE - {session.code}
-          </button>
-        </div>
         <div className="mb-4">
           <h2 className="text-xl font-semibold">Joueurs :</h2>
           {session.players?.length ? (
