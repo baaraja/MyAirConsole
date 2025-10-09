@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
-import ControllerIcon from "@/components/controller-icon";
 
 export default function GamePage() {
   const params = useParams();
@@ -99,10 +98,37 @@ export default function GamePage() {
           
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-400">Contrôleur mobile :</span>
-            <ControllerIcon 
-              sessionCode={session.code}
-              size={28}
-            />
+            <button
+              onClick={() => window.open(`/sessions/${session.code}/controller`, '_blank')}
+              className="inline-flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+              title={`Contrôleur pour ${session.code}`}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="text-white"
+              >
+                <path
+                  d="M6 10C6 8.89543 6.89543 8 8 8H16C17.1046 8 18 8.89543 18 10V14C18 15.1046 17.1046 16 16 16H8C6.89543 16 6 15.1046 6 14V10Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M4 11C3.44772 11 3 11.4477 3 12C3 12.5523 3.44772 13 4 13H6V11H4Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M20 11C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H18V11H20Z"
+                  fill="currentColor"
+                />
+                <rect x="8" y="10.5" width="1.5" height="3" fill="white" rx="0.2" />
+                <rect x="7.25" y="11.25" width="3" height="1.5" fill="white" rx="0.2" />
+                <circle cx="15" cy="11" r="0.8" fill="white" />
+                <circle cx="16.5" cy="12.5" r="0.8" fill="white" />
+              </svg>
+            </button>
           </div>
         </div>
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
-import ControllerIcon from "@/components/controller-icon";
 
 export default function SessionPage() {
   const [code, setCode] = useState("");
@@ -252,10 +251,22 @@ export default function SessionPage() {
             ←
           </Link>
           
-          <ControllerIcon 
-            sessionCode={currentSession?.code}
-            className="ml-2"
-          />
+          <button
+            onClick={() => {
+              if (currentSession?.code) {
+                window.open(`/sessions/${currentSession.code}/controller`, '_blank');
+              } else {
+                const code = prompt("Code de session pour la manette :");
+                if (code && code.trim()) {
+                  window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                }
+              }
+            }}
+            className="inline-flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+            title={currentSession?.code ? `Contrôleur pour ${currentSession.code}` : "Ouvrir contrôleur mobile"}
+          >
+            🎮
+          </button>
         </div>
         {/* Afficher la session active pour l'hôte ou joueur existant */}
         {currentSession && (() => {

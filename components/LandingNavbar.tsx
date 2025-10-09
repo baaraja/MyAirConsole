@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import UserButton from '@/components/UserButton';
-import ControllerIcon from '@/components/controller-icon';
 import {
   Navbar,
   NavBody,
@@ -33,7 +32,20 @@ export default function LandingNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-3">
-            <ControllerIcon size={20} />
+            <button
+              onClick={() => {
+                const code = prompt("Code de session pour la manette :");
+                if (code && code.trim()) {
+                  window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                } else {
+                  window.open("/sessions/join", '_blank');
+                }
+              }}
+              className="inline-flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
+              title="Ouvrir contrôleur mobile"
+            >
+              🎮
+            </button>
             <UserButton />
             <NavbarButton href="#contact" variant="secondary">
               Contact
@@ -65,9 +77,20 @@ export default function LandingNavbar() {
               </a>
             ))}
             <div className="flex w-full flex-col gap-4">
-              <div className="flex justify-center">
-                <ControllerIcon size={24} className="w-full" />
-              </div>
+              <button
+                onClick={() => {
+                  const code = prompt("Code de session pour la manette :");
+                  if (code && code.trim()) {
+                    window.open(`/sessions/${code.trim()}/controller`, '_blank');
+                  } else {
+                    window.open("/sessions/join", '_blank');
+                  }
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 transition-all duration-300 shadow-lg text-white"
+              >
+                🎮 Contrôleur Mobile
+              </button>
               <div onClick={() => setIsMobileMenuOpen(false)}>
                 <UserButton className="w-full" />
               </div>

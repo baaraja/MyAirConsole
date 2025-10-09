@@ -9,7 +9,7 @@ interface ControllerIconProps {
   size?: number;
 }
 
-export default function ControllerIcon({ 
+export function ControllerIcon({ 
   sessionCode, 
   className = "",
   size = 24 
@@ -85,3 +85,5 @@ export default function ControllerIcon({
     </div>
   );
 }
+
+export default ControllerIcon;
