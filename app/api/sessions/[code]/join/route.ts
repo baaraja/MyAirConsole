@@ -9,6 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
         const generatedName = `Player${Math.floor(Math.random() * 1000)}`;
         const gameSession = await prisma.gameSession.findUnique({
             where: { code: params.code.toUpperCase() },
+            include: { players: true, host: true },
         });
         if (!gameSession) {
             return NextResponse.json({ error: "Session non trouvée" }, { status: 404 });
@@ -31,7 +32,13 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
                 },
             });
         }
-        return NextResponse.json({ player, gameSession });
+        // Récupérer la session mise à jour avec toutes les données
+        const updatedGameSession = await prisma.gameSession.findUnique({
+            where: { code: params.code.toUpperCase() },
+            include: { players: true, host: true },
+        });
+
+        return NextResponse.json({ player, gameSession: updatedGameSession });
     } catch (error) {
         return NextResponse.json({ error: "Impossible de rejoindre la session" }, { status: 500 });
     }
