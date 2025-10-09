@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import UserButton from '@/components/UserButton';
+import ControllerIcon from '@/components/controller-icon';
 import {
   Navbar,
   NavBody,
@@ -32,6 +33,7 @@ export default function LandingNavbar() {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-3">
+            <ControllerIcon size={20} />
             <UserButton />
             <NavbarButton href="#contact" variant="secondary">
               Contact
@@ -63,6 +65,9 @@ export default function LandingNavbar() {
               </a>
             ))}
             <div className="flex w-full flex-col gap-4">
+              <div className="flex justify-center">
+                <ControllerIcon size={24} className="w-full" />
+              </div>
               <div onClick={() => setIsMobileMenuOpen(false)}>
                 <UserButton className="w-full" />
               </div>

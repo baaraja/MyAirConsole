@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
+import ControllerIcon from "@/components/controller-icon";
 
 export default function SessionPage() {
   const [code, setCode] = useState("");
@@ -242,14 +243,19 @@ export default function SessionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
       <div className="max-w-lg w-full bg-black/70 backdrop-blur-md border border-[#5a189a]/20 rounded-xl p-6 space-y-6 shadow-lg">
-        {/* Bouton retour accueil */}
-        <div className="flex justify-start">
+        {/* Header avec navigation et contrôleur */}
+        <div className="flex justify-between items-center">
           <Link 
             href="/"
             className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 hover:from-[#5a189a]/30 hover:to-[#7b2cbf]/30 border border-[#9d4edd]/30 rounded-lg transition-all duration-300 backdrop-blur-sm text-sm"
           >
             ←
           </Link>
+          
+          <ControllerIcon 
+            sessionCode={currentSession?.code}
+            className="ml-2"
+          />
         </div>
         {/* Afficher la session active pour l'hôte ou joueur existant */}
         {currentSession && (() => {

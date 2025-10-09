@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSocket } from "@/lib/socket";
+import ControllerIcon from "@/components/controller-icon";
 
 export default function GamePage() {
   const params = useParams();
@@ -91,10 +92,18 @@ export default function GamePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white p-8">
       <div className="max-w-6xl mx-auto bg-black/50 rounded-xl p-6 shadow-lg backdrop-blur-md border border-[#240046]/20">
-        <div className="mb-4">
+        <div className="mb-4 flex justify-between items-center">
           <Link href="/sessions/join" className="px-4 py-2 bg-gradient-to-r from-[#5a189a]/20 to-[#7b2cbf]/20 border border-[#9d4edd]/30 rounded-lg">
             ←
           </Link>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-400">Contrôleur mobile :</span>
+            <ControllerIcon 
+              sessionCode={session.code}
+              size={28}
+            />
+          </div>
         </div>
         <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#5a189a] to-[#7b2cbf] bg-clip-text text-transparent">
           Session : {session.code}
