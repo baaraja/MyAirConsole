@@ -31,12 +31,6 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
                     sessionId: gameSession.id,
                 },
             });
-        } else if (isUser && session?.user?.email && player.name !== session.user.email) {
-            // Mettre à jour le nom du player existant avec l'email de l'utilisateur
-            player = await prisma.player.update({
-                where: { id: player.id },
-                data: { name: session.user.email },
-            });
         }
         // Récupérer la session mise à jour avec toutes les données
         const updatedGameSession = await prisma.gameSession.findUnique({

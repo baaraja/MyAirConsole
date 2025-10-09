@@ -45,12 +45,8 @@ export default function ControllerPage() {
   }, [code]);
 
   const sendInput = (direction: string) => {
-    if (socket && code && player) {
-      socket.emit('controller_input', { 
-        code, 
-        direction, 
-        playerId: player.id 
-      });
+    if (socket && code) {
+      socket.emit('controller_input', { code, direction });
     }
   };
 

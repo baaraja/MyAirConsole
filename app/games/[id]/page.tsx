@@ -36,13 +36,7 @@ export default function GamePage() {
 
   useEffect(() => {
     if (!socket || !games.length) return;
-    const handleInput = (data: { direction: string; playerId?: string }) => {
-      // Vérifier si l'input vient du player de l'utilisateur actuel
-      const storedPlayerId = sessionStorage.getItem('playerId');
-      if (data.playerId && storedPlayerId && data.playerId !== storedPlayerId) {
-        return; // Ignorer les inputs d'autres players
-      }
-
+    const handleInput = (data: { direction: string }) => {
       const rowCount = Math.ceil(games.length / GRID_COLS);
       const colCount = GRID_COLS;
       let row = Math.floor(selectedIndex / colCount);
