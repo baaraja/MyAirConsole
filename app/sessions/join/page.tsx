@@ -204,7 +204,7 @@ export default function SessionPage() {
   };
 
   const uniquePlayers = currentSession ?
-    Array.from(new Map((currentSession.players || []).map(p => [p.id, p])).values()) : [];
+    Array.from(new Map((currentSession.players || []).map((p: any) => [p.userId || p.id, p])).values()) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0a1f] via-[#0f051a] to-black text-white flex items-center justify-center p-4">
