@@ -117,39 +117,6 @@ export default function SessionPage() {
       
       let data;
       if (code && code.trim() !== "") {
-        if (userSession?.user?.id) {
-          const checkRes = await fetch(`/api/sessions/${code}`);
-          if (checkRes.ok) {
-            const existingSession = await checkRes.json();
-            if (existingSession.hostId === userSession.user.id) {
-              // Pour l'hôte, créer une entrée de joueur virtuelle pour Socket.IO
-              const hostPlayer = {
-                id: `host-${existingSession.hostId}`,
-                name: userSession.user.email || "Hôte",
-                userId: userSession.user.id
-              };
-              
-              const sessionData = {
-                id: existingSession.id,
-                code: existingSession.code,
-                hostId: existingSession.hostId,
-                host: existingSession.host,
-                players: existingSession.players,
-                player: hostPlayer, // Ajouter les données du joueur hôte
-              };
-              sessionStorage.setItem('activeGameSession', JSON.stringify(sessionData));
-              // Configurer les données nécessaires pour Socket.IO
-              sessionStorage.setItem('playerId', hostPlayer.id);
-              sessionStorage.setItem('playerName', hostPlayer.name);
-              
-              setCurrentSession(existingSession);
-              setLoading(false);
-              return;
-            }
-          }
-        }
-        
-        // Sinon, rejoindre comme joueur normal
         const res = await fetch(`/api/sessions/${code}/join`, { method: "POST" });
         data = await res.json();
         if (data.error) {

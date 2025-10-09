@@ -22,7 +22,14 @@ export async function POST(req: NextRequest, { params }: { params: { code: strin
                 userId: session.user.id,
                 sessionId: gameSession.id,
             };
-            return NextResponse.json({ player: hostPlayer, gameSession });
+            
+            // Récupérer la session mise à jour pour l'hôte aussi
+            const updatedGameSession = await prisma.gameSession.findUnique({
+                where: { code: params.code.toUpperCase() },
+                include: { players: true, host: true },
+            });
+            
+            return NextResponse.json({ player: hostPlayer, gameSession: updatedGameSession });
         }
 
         let player = null;
